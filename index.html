@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>A Simple Watcher for HackerNews</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/styles/main.css"/>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="header clearfix">
+            <nav>
+            <ul class="nav nav-pills pull-right">
+                <li role="presentation" v-bind:class="{active: activeMenu == 'home'}"><a v-on:click.prevent="homeClicked" href="#home">Latest</a></li>
+                <li role="presentation" v-bind:class="{active: activeMenu == 'newest'}"><a v-on:click.prevent="newestClicked" href="#newest">Newest</a></li>
+                <li role="presentation" v-bind:class="{active: activeMenu == 'saved'}"><a v-on:click.prevent="savedClicked" href="#saved">Saved</a></li>
+            </ul>
+            </nav>
+            <h3 class="text-muted">HackerWatch</h3>
+        </div>
+
+        <div class="content">
+            <div class="news-list-container">
+                <ul v-for="news in listDisplay" :key="news.guid">
+                    <li>
+                        <a v-bind:href="news.link">
+                            {{ news.title }}
+                        </a>
+                        <button v-if="!news.saved" class="btn btn-xs btn-success" v-on:click.prevent="saveNews(news)">Save</button>
+                        <button v-if="news.saved" class="btn btn-xs btn-danger" v-on:click.prevent="removeNews(news)">Remove</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script src="/node_modules/vue/dist/vue.min.js"></script>
+    <script src="/node_modules/vue-resource/dist/vue-resource.min.js"></script>
+    <script src="/node_modules/lodash/lodash.min.js"></script>
+    <script src="/scripts/main.js"></script>
+</body>
+</html>
