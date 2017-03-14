@@ -20,14 +20,35 @@
         </div>
 
         <div class="content">
-            <div class="news-list-container">
-                <ul v-for="news in listDisplay" :key="news.guid">
-                    <li>
-                        <a v-bind:href="news.link">
+            <div class="news-list-container" v-show="activeMenu == 'home'">
+                <ul>
+                    <li v-for="news in frontList.display" :key="news.guid">
+                        <a v-bind:href="news.link" target="_blank">
                             {{ news.title }}
                         </a>
                         <button v-if="!news.saved" class="btn btn-xs btn-success" v-on:click.prevent="saveNews(news)">Save</button>
-                        <button v-if="news.saved" class="btn btn-xs btn-danger" v-on:click.prevent="removeNews(news)">Remove</button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="news-list-container" v-show="activeMenu == 'newest'">
+                <ul>
+                    <li v-for="news in newestList.display" :key="news.guid">
+                        <a v-bind:href="news.link" target="_blank">
+                            {{ news.title }}
+                        </a>
+                        <button v-if="!news.saved" class="btn btn-xs btn-success" v-on:click.prevent="saveNews(news)">Save</button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="news-list-container" v-show="activeMenu == 'saved'">
+                <ul>
+                    <li v-for="news in savedList" :key="news.guid">
+                        <a v-bind:href="news.link" target="_blank">
+                            {{ news.title }}
+                        </a>
+                        <button class="btn btn-xs btn-danger" v-on:click.prevent="removeNews(news)">Remove</button>
                     </li>
                 </ul>
             </div>

@@ -1,4 +1,5 @@
 Vue.config.devtools = true;
+Vue.config.debug = true;
 
 var newsStorageKey = 'saved_list';
 
@@ -9,17 +10,27 @@ function getNews(){
   return [];
 }
 
-function saveNews(value){
-  localStorage.setItem(newsStorageKey, JSON.stringify(value));
+function saveNews(value) {
+    var newsList = getNews();
+    newsList.push(value);
+    localStorage.setItem(newsStorageKey, JSON.stringify(newsList));
+}
+
+function removeNews(value) {
+    var newsList = getNews();
+
+    var freshList = newsList.filter(function(newsItem) {
+        return (newsItem.guid != value.guid);
+    });
+    
+    localStorage.setItem(newsStorageKey, JSON.stringify(freshList));
 }
 
 var vm = new Vue({
     el: '#app',
     data: {
-        newsStorageKey: 'saved_list',
         activeMenu: 'home',
         lastGrabTime: null,
-        listDisplay:null,
         frontList: {
             display: null,
             actual: null
@@ -27,22 +38,21 @@ var vm = new Vue({
         newestList: {
             display: null,
             actual: null
-        }
+        },
+        reloadSavedList: false,
+        savedList: []
     },
-    computed: {
-        savedList: function() {
-            return getNews()
+    watch: {
+        reloadSavedList: function(status) {
+            console.log('updated ', status);
+            if (status) {
+                this.savedList = getNews();
+                this.reloadSavedList = false;
+            }
         }
     },
     created: function(){
         this.homeClicked();
-    },
-    watch: {
-        savedList: function(savedList){
-            console.log(savedList);
-            console.log('changed');
-            saveNews(savedList);
-        }
     },
     methods:{
         homeClicked: function(event){
@@ -50,7 +60,6 @@ var vm = new Vue({
             this.activeMenu = 'home';
             this.requestFront(function(items) {
                 t.updateListIfDifferent(t.frontList, items);
-                t.listDisplay = t.frontList.display;
                 t.lastGrabTime = new Date();
             });
         },
@@ -59,26 +68,20 @@ var vm = new Vue({
             this.activeMenu = 'newest';
             this.requestNewest(function(items) {
                 t.updateListIfDifferent(t.newestList, items);
-                t.listDisplay = t.newestList.display;
                 t.lastGrabTime = new Date();
             });
         },
         savedClicked: function(){
             this.activeMenu = 'saved';
-            this.listDisplay = this.savedList;
+            this.reloadSavedList = true;
         },
         saveNews: function(news) {
-            news.saved = true;
-            this.savedList.push(news);
-            // localStorage.setItem(this.newsStorageKey, JSON.stringify(this.savedList));
+            saveNews(news);
+            this.reloadSavedList = true;
         },
         removeNews: function(news) {
-            var removedItem = this.savedList.filter(function(newsItem) {
-                return (newsItem.guid != news.guid);
-            });
-
-            this.savedList = removedItem;
-            // localStorage.setItem(this.newsStorageKey, JSON.stringify(removedItem));
+            removeNews(news);
+            this.reloadSavedList = true;
         },
         updateListIfDifferent: function(data, listItem) {
 
